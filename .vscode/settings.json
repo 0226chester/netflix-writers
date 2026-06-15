@@ -1,0 +1,21 @@
+{
+  "cornflakes.linter.executablePath": "../venv/bin/flake8",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "search.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/.tox": true,
+    "**/venv": true
+  },
+  "prettier.printWidth": 120,
+  "python.linting.flake8Enabled": true,
+  "python.linting.enabled": true,
+  "python.envFile": "${workspaceFolder}/.env",
+  "python.terminal.useEnvFile": true
+}

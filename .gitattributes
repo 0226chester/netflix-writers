@@ -1,0 +1,12 @@
+# exclude pure-version files from Git merges.
+netflix/__version__.py merge=ours
+pyproject.toml merge=ours
+
+# Auto detect text files and perform LF normalization
+# * text eol=lf
+netflix/static/assets/*
+staticfiles/* linguist-vendored
+node_modules/* linguist-vendored
+build/* linguist-vendored
+dist/* linguist-vendored
+htmlcov/* linguist-vendored

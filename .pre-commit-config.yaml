@@ -1,0 +1,96 @@
+default_language_version:
+  # default language version for each language
+  python: python3.13
+repos:
+  - repo: https://github.com/DanielNoord/pydocstringformatter
+    rev: v0.7.5
+    hooks:
+      - id: pydocstringformatter
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.21.2
+    hooks:
+      - id: pyupgrade
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.2
+    hooks:
+      - id: codespell
+        args: ["--ignore-words=codespell.txt"]
+        exclude: '\.svg$|^netflix/static/|^helm/|^docs/source/example-manifests/'
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        entry: bash -c 'cd client && npx eslint'
+        language: node
+        types: [javascript]
+        files: ^client/
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        args: [--no-error-on-unmatched-pattern]
+        exclude: "^netflix|^helm/|^docs/source/example-manifests/"
+  - repo: https://github.com/psf/black
+    rev: 26.5.1
+    hooks:
+      - id: black
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.3.0
+    hooks:
+      - id: flake8
+  - repo: https://github.com/PyCQA/isort
+    rev: 9.0.0a3
+    hooks:
+      - id: isort
+        args: ["--settings-path=pyproject.toml"]
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.3.3
+    hooks:
+      - id: autoflake
+        args: [--remove-all-unused-imports]
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.9.4
+    hooks:
+      - id: bandit
+        args: ["-s", "B608"]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # See https://pre-commit.com/hooks.html for more hooks
+      #- id: check-added-large-files
+      - id: fix-byte-order-marker
+      - id: check-case-conflict
+      - id: check-json
+        exclude: ".*/reactapp/.*"
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-xml
+        exclude: "netflix/static/|netflix/templates/"
+      - id: check-yaml
+      - id: destroyed-symlinks
+      - id: detect-aws-credentials
+        args: ["--allow-missing-credentials"]
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: forbid-new-submodules
+      - id: trailing-whitespace
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: debug-statements
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.25.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        additional_dependencies: ["@commitlint/config-angular"]
+ci:
+  # for more information, see https://pre-commit.ci
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+  autofix_prs: true
+  autoupdate_branch: ""
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+  autoupdate_schedule: weekly
+  skip: [helmlint, shellcheck, markdown-link-check, commitlint]
+  submodules: false

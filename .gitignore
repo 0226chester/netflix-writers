@@ -1,0 +1,74 @@
+# -------------------------------------
+# WARNING: everything is in here for a reason. Edit with care.
+# -------------------------------------
+*.duckdb
+*.tsv.gz
+*.tar.gz
+*.tsv
+*.csv
+
+# application local dev run-time data
+# -------------------------------------
+.ruff_cache
+celerybeat-schedule
+mysql-data
+db.sqlite3
+.cache.sqlite
+staticfiles
+*.swp
+
+# coverage analysis artifacts
+# -------------------------------------
+**/.coverage
+**/.coverage.*
+htmlcov
+
+# Jupyter Notebook
+# -------------------------------------
+.ipynb_checkpoints
+
+# os files
+# -------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# log data
+# -------------------------------------
+*.log
+*.db
+*.out
+
+
+# typical secrets files
+# -------------------------------------
+.env
+secrets.json
+config.json
+*.key
+*.pem
+*.p12
+*.pfx
+*.cer
+*.crt
+*.der
+*.p7b
+*.p7c
+
+
+# Python run-time artifacts
+# -------------------------------------
+.pypi_cache
+__pycache__
+.pytest_cache
+venv
+.venv
+.pytest_cache
+*.pyc
+*.pyo
+*.pyd
+
+# ReactJS run-time artifacts
+# -------------------------------------
+node_modules
+/package-lock.json

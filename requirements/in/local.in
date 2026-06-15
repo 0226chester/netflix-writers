@@ -1,0 +1,41 @@
+# -----------------------------------------------------------------------------
+# written by: Lawrence McDaniel
+#             https://lawrencemcdaniel.com
+#
+# usage: developer support packages for code syntax and type checking, testing,
+#        formatting, security, quality, vanity, debugging, build & packaging
+#
+#        python -m piptools compile requirements/in/local.in --upgrade -o requirements/local.txt
+# -----------------------------------------------------------------------------
+
+-r constraints.in
+-r base.in
+
+pip-tools              # Compile and synchronize requirements files
+
+# Type annotations for packages that don’t include them
+# -----------------------------------------------------------------------------
+pandas-stubs           # Type stubs for pandas
+types-cachetools       # Type stubs for cachetools
+types-lxml             # Type stubs for lxml
+types-requests         # Type stubs for requests
+mypy_extensions        # Extensions for mypy type annotations
+
+# Tests
+# -----------------------------------------------------------------------------
+pytest                 # Python testing framework
+pytest_mock            # Mocking utilities for pytest
+
+# Code linters, formatters, and security scanners
+# -----------------------------------------------------------------------------
+bandit                 # Security vulnerability scanner
+black                  # Opinionated code formatter
+codespell              # Source code spell checker
+coverage               # Test coverage measurement
+flake8                 # Python style and lint checker
+flake8-coding          # Coding convention enforcement
+mypy                   # Static type checker
+pre-commit             # Git hook management framework
+pylint                 # Python code analyzer and linter
+pylint-django          # Django plugin for pylint
+tox                    # Multi-environment test automation

@@ -1,0 +1,70 @@
+# -----------------------------------------------------------------------------
+# written by: Lawrence McDaniel
+#             https://lawrencemcdaniel.com
+#
+# usage:      The common platform requirements.
+#
+#             python -m piptools compile requirements/in/base.in --upgrade -o requirements/base.txt
+# -----------------------------------------------------------------------------
+
+-r constraints.in
+
+# Primary Data Science & Machine Learning
+# -----------------------------------------------------------------------------
+pandas                 # DataFrame-based data manipulation
+numpy                  # Numerical arrays and linear algebra
+matplotlib             # Core plotting and visualization library
+seaborn                # Statistical data visualization
+scipy                  # Scientific computing algorithms
+scikit-learn           # Machine learning algorithms and utilities
+shap                   # Explainable machine learning models
+
+# Secondary Data Science & Machine Learning
+# -----------------------------------------------------------------------------
+statsmodels            # Statistical modeling and inference
+feature-engine         # Feature engineering transformers
+category-encoders      # Encoding methods for categorical features
+xgboost                # Extreme gradient boosting models
+lightgbm               # Fast gradient boosting framework
+catboost               # Gradient boosting with categorical support
+plotly                 # Interactive charts and dashboards
+
+# Data Acquisition & Management
+# -----------------------------------------------------------------------------
+python-dotenv          # Load environment variables from .env
+requests               # Simple synchronous HTTP client
+httpx                  # Modern HTTP client with async support
+tenacity               # Retry logic with backoff strategies
+kaggle                 # Download datasets from Kaggle
+duckdb                 # In-process analytical database engine
+pyarrow                # Apache Arrow and Parquet support
+pandera                # Data validation for pandas DataFrames
+pyyaml                 # YAML parsing and serialization
+
+# Low-Level Engines & Specialized Frameworks
+# -----------------------------------------------------------------------------
+
+# Development & Tooling
+# -----------------------------------------------------------------------------
+ipykernel              # Jupyter kernel for the environment
+jupyterlab             # Interactive notebook environment
+ruff                   # Fast Python linter and formatter
+mypy                   # Static type checking
+loguru                 # Simplified structured logging
+rich                   # Rich terminal output and progress bars
+tqdm                   # Progress bars for loops and tasks
+types-tqdm             # stubs for tqdm
+typer                  # Build command-line interfaces
+
+
+# Might use later on ...
+# -----------------------------------------------------------------------------
+# torch                  # PyTorch deep learning framework
+# transformers           # Hugging Face transformer models
+# sentence-transformers  # Text embeddings and semantic search
+# networkx               # Graph and network analysis
+# psycopg[binary]        # PostgreSQL database driver
+# sqlalchemy             # SQL toolkit and ORM
+# beautifulsoup4         # HTML parsing and web scraping
+# lxml                   # Fast XML and HTML processing
+# mlflow                 # Experiment tracking and model registry

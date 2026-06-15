@@ -1,0 +1,72 @@
+[project]
+name = "Smarter"
+version = "9999.9999.9999.dev9999"
+requires-python = ">=3.10"
+description = "Smarter: a declarative AI resource management platform"
+authors = [{ name = "Lawrence McDaniel", email = "lpm0073@gmail.com" }]
+license = { file = "LICENSE" }
+keywords = ["AI", "API", "Python", "Kubernetes", "Cloud", "Management"]
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "License :: OSI Approved :: GNU AGPL v3 or later (AGPLv3+)",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Operating System :: POSIX :: Linux",
+    "Intended Audience :: Developers",
+    "Framework :: Django",
+    "Framework :: Django REST framework",
+    "Topic :: Software Development :: Libraries :: Application Interfaces",
+    "Topic :: Software Development :: Libraries :: API",
+    "Natural Language :: English",
+    "Development Status :: 4 - Beta"
+]
+
+[project.urls]
+homepage = "https://github.com/netflix-writers/"
+documentation = "https://github.com/netflix-writers/"
+repository = "https://github.com/netflix-writers/netflix"
+bugtracker = "https://github.com/netflix-writers/netflix/issues"
+changelog = "https://github.com/netflix-writers/netflix/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["setuptools>=80.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+target-version = ['py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | \.env
+  | venv
+  | node_modules
+  | build
+  | buck-out
+  | build
+  | dist
+  | __pypackages__
+  | staticfiles
+  |.pypi_cache
+  | .pytest_cache
+  | .coverage
+  | keen_v3.0.6
+  | mysql-data
+  | htmlcov
+  | .eggs
+  | .idea
+)/
+'''
