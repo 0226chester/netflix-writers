@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+
+
+## [0.1.2-alpha.1](https://github.com/FullStackWithLawrence/netflix-writers/compare/v0.1.1...v0.1.2-alpha.1) (2026-06-16)
+
+### Bug Fixes
+
+* bug fixes ([2b13a03](https://github.com/FullStackWithLawrence/netflix-writers/commit/2b13a034454fb36da5148aa1578f519f6f2079ef))
+
 ## [0.1.1-alpha.1](https://github.com/FullStackWithLawrence/netflix-writers/compare/v0.1.0...v0.1.1-alpha.1) (2026-06-16)
 
 ### Bug Fixes
