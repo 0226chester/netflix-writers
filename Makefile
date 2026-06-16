@@ -76,6 +76,12 @@ pre-commit-run:
 	@echo "==============================================================================="
 	pre-commit run --all-files
 
+release:
+	@echo "==============================================================================="
+	@echo "Forcing a new semantic release on GitHub by creating an empty commit and pushing to the repository ..."
+	@echo "==============================================================================="
+	git commit -m "fix: force a new release" --allow-empty && git push
+
 # ---------------------------------------------------------
 # Python
 # ---------------------------------------------------------
@@ -164,6 +170,7 @@ help:
 	@echo 'tear-down              - Destroy all Docker build and local artifacts'
 	@echo 'pre-commit-init        - Install and configure pre-commit hooks'
 	@echo 'pre-commit-run         - Run pre-commit hooks on all files'
+	@echo 'release                - Force a new semantic release on GitHub by creating an empty commit and pushing to the repository'
 	@echo '<************************** Python **************************>'
 	@echo 'check-python           - Verify Python 3.13 is installed'
 	@echo 'python-init            - Create a Python virtual environment and install dependencies'
