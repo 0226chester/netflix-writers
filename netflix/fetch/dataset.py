@@ -32,7 +32,11 @@ logger = logging.getLogger(__name__)
 
 
 def fuzzy_match(
-    base: pd.DataFrame, source: pd.DataFrame, score_threshold: float = 0.85, source_name: str = "source"
+    base: pd.DataFrame,
+    source: pd.DataFrame,
+    columns: list[str] | None = None,
+    score_threshold: float = 0.85,
+    source_name: str = "source",
 ) -> pd.DataFrame:
     """
     Performs fuzzy matching between the base and source datasets.
@@ -71,7 +75,10 @@ def fuzzy_match(
     best = candidates.sort_values(["score"], ascending=False).drop_duplicates(subset=["netflix_title"], keep="first")
 
     logger.info("Matched %d out of %d Netflix titles to %s.", len(best), len(base), source_name)
-    return best[["netflix_title", "title"]].rename(columns={"title": f"{source_name}_title"})
+    columns = columns or []
+    rename_map = {col: f"{source_name}_{col}" for col in columns if col != "netflix_title"}
+    selected = ["netflix_title", *columns]
+    return best[selected].rename(columns=rename_map)
 
 
 def log_dataframe_info(df: pd.DataFrame, name: str = "DataFrame") -> None:
@@ -365,8 +372,27 @@ def create_dataset() -> pd.DataFrame:
     imdb = build_imdb(imdb_basics, imdb_ratings)
 
     # LEFT JOIN SOURCES
-    tmdb_map = fuzzy_match(netflix, tmdb, source_name="tmdb")
-    imdb_map = fuzzy_match(netflix, imdb, source_name="imdb")
+    tmdb_map = fuzzy_match(
+        netflix,
+        tmdb,
+        source_name="tmdb",
+        columns=[
+            "title",
+            "popularity",
+            "vote_average",
+            "vote_count",
+        ],
+    )
+    imdb_map = fuzzy_match(
+        netflix,
+        imdb,
+        source_name="imdb",
+        columns=[
+            "title",
+            "averageRating",
+            "numVotes",
+        ],
+    )
 
     result = netflix.merge(tmdb_map, on="netflix_title", how="left")
     result = result.merge(imdb_map, on="netflix_title", how="left")
