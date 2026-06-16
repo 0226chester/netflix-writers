@@ -1,5 +1,15 @@
 module.exports = {
-  branches: ["main", "beta", "alpha"],
+  branches: [
+    "main",
+    {
+      name: "beta",
+      prerelease: "beta",
+    },
+    {
+      name: "alpha",
+      prerelease: "alpha",
+    },
+  ],
   dryRun: false,
   plugins: [
     [
