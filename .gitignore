@@ -6,6 +6,7 @@
 *.tar.gz
 *.tsv
 *.csv
+*.csv.gz
 
 # application local dev run-time data
 # -------------------------------------

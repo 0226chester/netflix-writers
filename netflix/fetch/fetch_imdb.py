@@ -15,7 +15,7 @@ from pathlib import Path
 
 import duckdb
 
-from .const import DB_DIR, DB_PATH
+from .const import DB_DIR, DB_FILE
 from .lib import cleanup, fetch_url
 
 BASE_URL = "https://datasets.imdbws.com"
@@ -132,7 +132,7 @@ def fetch_title_basics(with_cleanup: bool = False) -> None:
         raise RuntimeError("Failed to download title.basics.tsv.gz")
 
     try:
-        with duckdb.connect(DB_PATH) as con:
+        with duckdb.connect(DB_FILE) as con:
             build_titles_table(con, titles_file)
             export_titles(con)
 
@@ -163,7 +163,7 @@ def fetch_title_ratings(with_cleanup: bool = False) -> None:
         raise RuntimeError("Failed to download title.ratings.tsv.gz")
 
     try:
-        with duckdb.connect(DB_PATH) as con:
+        with duckdb.connect(DB_FILE) as con:
             build_ratings_table(con, ratings_file)
             export_ratings(con)
 

@@ -1,7 +1,9 @@
 """Utility functions for downloading and managing files."""
 
+import json
 from pathlib import Path
 
+import pandas as pd
 import requests
 from tqdm import tqdm
 
@@ -67,3 +69,44 @@ def cleanup(filename: Path) -> None:
         filename.unlink(missing_ok=True)
     except OSError as exc:
         print(f"Failed to remove {filename}: {exc}")
+
+
+def safe_cast(x) -> list:
+    """
+    Always returns a list safely, even if input is:
+
+    - NaN
+    - list
+    - dict
+    - malformed JSON string
+    - numpy array
+    """
+    if x is None:
+        return []
+
+    # already list-like
+    if isinstance(x, list):
+        return x
+
+    if isinstance(x, tuple):
+        return list(x)
+
+    # pandas NaN safe check
+    try:
+        if pd.isna(x):
+            return []
+    # pylint: disable=broad-except
+    except Exception:
+        pass
+
+    if isinstance(x, str):
+        try:
+            parsed = json.loads(x)
+            if isinstance(parsed, list):
+                return [c.get("name") for c in parsed if isinstance(c, dict) and "name" in c]
+            return []
+        # pylint: disable=broad-except
+        except Exception:
+            return []
+
+    return []
