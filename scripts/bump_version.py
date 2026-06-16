@@ -19,46 +19,16 @@ Updates:
 - pyproject.toml
 """
 
+import os
 import re
 import sys
 from pathlib import Path
 
-PLACEHOLDER = "9999.9999.9999.dev9999"
-
 # semantic version: ##.##.## or ##.##.##-label.n
 SEMANTIC_VERSION_REGEX = r"^\d+\.\d+\.\d+(-[A-Za-z0-9.]+)?$"
-
-
-def update_version_in_file(filepath, replacement):
-    """
-    Update the version in a file by replacing the placeholder with the new.
-
-    version.
-
-    .. args:
-        filepath (str): The path to the file to update.
-        replacement (str): The new version string to replace the placeholder.
-
-    .. returns:
-        None
-
-    .. raises:
-        ValueError: If the placeholder is not found in the file.
-    """
-
-    path = Path(filepath)
-    text = path.read_text(encoding="utf-8")
-    count = text.count(PLACEHOLDER)
-
-    if count == 0:
-        raise ValueError(f"Placeholder '{PLACEHOLDER}' not found in {filepath}")
-
-    path.write_text(
-        text.replace(PLACEHOLDER, replacement),
-        encoding="utf-8",
-    )
-
-    print(f"Updated {filepath}: {count} replacements")
+HERE = os.path.abspath(os.path.dirname(__file__))
+NETFLIX_DIR = os.path.join(HERE, "..", "netflix")
+REPO_ROOT = os.path.join(HERE, "..")
 
 
 def main():
@@ -79,8 +49,8 @@ def main():
         ValueError: If the new version format is invalid or if the placeholder
         is not found in any of the files.
     """
-    cicd: bool = False
-    usage: str = "Usage: python bump_version.py <new_version> [--cicd]"
+    cicd = False
+    usage = "Usage: python bump_version.py <new_version> [--cicd]"
     if len(sys.argv) not in (2, 3):
         print(usage)
         sys.exit(1)
@@ -96,12 +66,25 @@ def main():
             sys.exit(1)
         cicd = True
 
-    update_version_in_file("netflix/__version__.py", new_version)
-    if cicd:
-        update_version_in_file(
-            "pyproject.toml",
-            new_version,
-        )
+    # version file
+    path = Path(os.path.join(NETFLIX_DIR, "__version__.py"))
+    text = path.read_text(encoding="utf-8")
+    text = re.sub(
+        r'__version__\s*=\s*"[^"]+"',
+        f'__version__ = "{new_version}"',
+        text,
+    )
+    path.write_text(text, encoding="utf-8")
+
+    # pyproject.toml
+    path = Path(os.path.join(REPO_ROOT, "pyproject.toml"))
+    text = path.read_text(encoding="utf-8")
+    text = re.sub(
+        r'version\s*=\s*"[^"]+"',
+        f'version = "{new_version}"',
+        text,
+    )
+    path.write_text(text, encoding="utf-8")
 
 
 if __name__ == "__main__":
