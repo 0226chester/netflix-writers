@@ -26,7 +26,7 @@ Netflix AI Greenlight Challenge: Can Data Science Predict the Next Hit Drama?
 3. Initialize your environment by running the make commands below.
    These will create and activate a Python virtual
    environment, and then download data files for Netflix, IMDb and The Movie
-   Database (TMDB). The final dataset will be located at `./netflix/db/netflix_enriched_dataset.csv`.
+   Database (TMDB).
 
    **The setup process will take between 5 and 15 minutes depending on your compute
    device and your Internet connection.**
@@ -35,6 +35,12 @@ Netflix AI Greenlight Challenge: Can Data Science Predict the Next Hit Drama?
    make python-init
    make run
    ```
+
+Creates three csv files in the ./data directory:
+
+- imdb.titles.composite.csv
+- netflix.titles.composite.csv
+- TMDB_tv_dataset_v3.csv
 
 ## Data Sources
 

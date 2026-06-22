@@ -149,7 +149,7 @@ python-fetch-data:
 
 python-build-dataset:
 	@echo "==============================================================================="
-	@echo "Building enriched Netflix dataset from fetched data ..."
+	@echo "Building composite Netflix dataset from fetched data ..."
 	@echo "==============================================================================="
 	$(ACTIVATE_VENV) && python -m netflix.build
 
@@ -184,5 +184,5 @@ help:
 	@echo 'python-clean           - Destroy the Python virtual environment and remove __pycache__ directories'
 	@echo 'python-requirements    - Compile and update Python dependency files'
 	@echo 'python-fetch-data      - Fetch data from external APIs and save to local files'
-	@echo 'python-build-dataset   - Build enriched Netflix dataset from fetched data'
+	@echo 'python-build-dataset   - Build composite Netflix dataset from fetched data'
 	@echo '===================================================================='

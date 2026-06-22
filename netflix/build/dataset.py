@@ -19,15 +19,15 @@ from tqdm import tqdm
 from netflix.const import DATA_DIR, DUCKDB_DATA_FILE
 
 KAGGLE_PATH = Path(DATA_DIR) / "kaggle"
-IMDB_PATH = Path(DATA_DIR) / "imdb"
 
+IMDB_PATH = Path(DATA_DIR) / "imdb"
 IMDB_TITLES_BASICS_FILE = IMDB_PATH / "title.basics.tsv.gz"
 IMDB_TITLE_RATINGS_FILE = IMDB_PATH / "title.ratings.tsv.gz"
 
-TMDB_TV_DATA_FILE = KAGGLE_PATH / "tmdb-movie-metadata" / "TMDB_tv_dataset_v3.csv"
-NETFLIX_FILE = KAGGLE_PATH / "netflix-top-10-tv-shows-and-films" / "all-weeks-global.csv"
+TMDB_TV_DATA_FILE = Path(DATA_DIR) / "tmdb.titles.v3.csv"
 
-NETFLIX_ENRICHED_DATASET_FILE = Path(DATA_DIR) / "netflix_enriched_dataset.csv"
+NETFLIX_FILE = KAGGLE_PATH / "netflix-top-10-tv-shows-and-films" / "all-weeks-global.csv"
+NETFLIX_COMPOSITE_DATASET_FILE = Path(DATA_DIR) / "netflix.titles.composite.csv"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -611,8 +611,8 @@ def create_dataset() -> pd.DataFrame:
     log_dataframe_info(result, "Final dataset")
     logger.info("Dataset head:\n%s", result.head())
 
-    logger.info("Saving enriched dataset to %s...", NETFLIX_ENRICHED_DATASET_FILE)
-    result.to_csv(NETFLIX_ENRICHED_DATASET_FILE, index=False)
+    logger.info("Saving composite dataset to %s...", NETFLIX_COMPOSITE_DATASET_FILE)
+    result.to_csv(NETFLIX_COMPOSITE_DATASET_FILE, index=False)
     return result
 
 
