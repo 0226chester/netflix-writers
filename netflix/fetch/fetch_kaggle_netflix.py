@@ -11,14 +11,15 @@ https://www.kaggle.com/datasets/dhruvildave/netflix-top-10-tv-shows-and-films
 import logging
 import os
 
+import pandas as pd
 from kaggle.api.kaggle_api_extended import KaggleApi  # type: ignore[import-untyped]
 
-from .const import DB_DIR
+from netflix.const import DATA_DIR
 
-KAGGLE_DIR = os.path.join(DB_DIR, "kaggle", "netflix-top-10-tv-shows-and-films")
+KAGGLE_DIR = os.path.join(DATA_DIR, "kaggle", "netflix-top-10-tv-shows-and-films")
 DATASET = "dhruvildave/netflix-top-10-tv-shows-and-films"
 
-api = KaggleApi()
+kaggle_api = KaggleApi()
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
@@ -37,10 +38,19 @@ def main():
     Raises:
         Exception: If there is an error during authentication or dataset download.
     """
-    api.authenticate()
-    api.dataset_download_files(DATASET, path=KAGGLE_DIR, unzip=True)
+    kaggle_api.authenticate()
+    kaggle_api.dataset_download_files(DATASET, path=KAGGLE_DIR, unzip=True)
     logger.info("Dataset downloaded successfully.")
     logger.info("-" * 40)
+
+    all_weeks_csv_path = os.path.join(KAGGLE_DIR, "all-weeks-global.csv")
+    unique_shows_csv_path = os.path.join(KAGGLE_DIR, "unique-shows.csv")
+    df = pd.read_csv(all_weeks_csv_path)
+
+    unique_shows = df[["show_title"]].dropna().drop_duplicates().sort_values("show_title")
+
+    unique_shows.to_csv(unique_shows_csv_path, index=False)
+    print(f"Found {len(unique_shows)} unique shows.")
 
 
 if __name__ == "__main__":

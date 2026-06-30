@@ -1,192 +1,367 @@
 """
 Download and prune IMDb datasets.
 
-This script downloads IMDb's title.basics and title.ratings datasets,
-filters them to retain only non-adult movies, TV series, and TV mini-series,
-and exports the results to CSV files.
-
-Outputs:
-    - titles.basics.csv
-    - title.ratings.csv
+Pipeline:
+    1. Download IMDb TSV files
+    2. Build filtered DuckDB tables
+    3. Export CSVs
+    4. Build composite 1-row-per-title dataset
 """
 
 import logging
 import os
 from pathlib import Path
+from typing import Optional
 
 import duckdb
+import pandas as pd
 
-from .const import DB_DIR, DB_FILE
-from .lib import cleanup, fetch_url
+from netflix.const import DATA_DIR, DUCKDB_DATA_FILE
+
+from .lib import fetch_url
 
 BASE_URL = "https://datasets.imdbws.com"
-IMDB_DIR = os.path.join(DB_DIR, "imdb")
-IMDB_TITLE_TYPES = ["movie", "tvSeries"]
+IMDB_DIR = os.path.join(DATA_DIR, "imdb")
+
+IMDB_TITLE_TYPES = ["tvSeries"]
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
 
 
-def export_titles(con: duckdb.DuckDBPyConnection) -> None:
+def export_composite(con: duckdb.DuckDBPyConnection) -> None:
     """
-    Export the filtered titles table to titles.basics.csv.
+    Export the composite titles table to CSV.
 
-    .. args:
-        con: A DuckDB connection with the title_basics table built.
+    Args:
+        con: DuckDB connection
 
-    .. returns:
+    Returns:
         None
     """
-    output_path = os.path.join(IMDB_DIR, "titles.basics.csv")
+    output_path = os.path.join(DATA_DIR, "imdb.titles.composite.csv")
+
     con.execute(f"""
-        COPY title_basics
+        COPY titles_composite
         TO '{output_path}'
         (FORMAT csv, HEADER true)
-        """)
-    logger.info("Exported title_basics to %s.", output_path)
+    """)
+
+    logger.info("Exported titles_composite → %s", output_path)
+    pd.read_csv(output_path).head()
 
 
-def export_ratings(con: duckdb.DuckDBPyConnection) -> None:
+def export_table(con, table: str, filename: str) -> None:
     """
-    Export the filtered ratings table to title.ratings.csv.
+    Export a DuckDB table to CSV.
 
-    .. args:
-        con: A DuckDB connection with the title_ratings table built.
+    Args:
+        con: DuckDB connection
+        table: Name of the DuckDB table to export
+        filename: Name of the CSV file to export
 
-    .. returns:
+    Raises:
+        RuntimeError: If the export fails
+
+    Returns:
         None
     """
-    output_path = os.path.join(IMDB_DIR, "title.ratings.csv")
+    output_path = os.path.join(IMDB_DIR, filename)
     con.execute(f"""
-        COPY title_ratings
+        COPY {table}
         TO '{output_path}'
         (FORMAT csv, HEADER true)
-        """)
-    logger.info("Exported title_ratings to %s.", output_path)
+    """)
+    logger.info("Exported %s → %s", table, output_path)
 
 
-def build_titles_table(con: duckdb.DuckDBPyConnection, filename: Path) -> None:
+def build_titles_table(con, filename: Path) -> None:
     """
-    Create the filtered titles table.
+    Build the title_basics table from the IMDb TSV file.
 
-    .. args:
-        con: A DuckDB connection.
-        filename: The path to the title.basics.tsv.gz file.
+    Args:
+        con: DuckDB connection
+        filename: Path to the IMDb TSV file
 
-    .. returns:
+    Raises:
+        RuntimeError: If the table creation fails
+
+    Returns:
         None
     """
-    logger.info("Building title_basics table from %s...", filename)
+    logger.info("Building title_basics...")
+
     title_types = ", ".join(f"'{t}'" for t in IMDB_TITLE_TYPES)
-    con.execute(
-        f"""
+
+    con.execute(f"""
         CREATE OR REPLACE TABLE title_basics AS
-        SELECT  *,
-                LOWER(REGEXP_REPLACE(primaryTitle, '[^a-z0-9 ]', '', 'g')) AS title_key
-        FROM    read_csv_auto(?, delim='\t')
-        WHERE   titleType IN ({title_types}) AND
-                isAdult = '0'
-        """,
-        [str(filename)],
-    )
-    logger.info("Built title_basics table.")
+        SELECT *,
+            LOWER(REGEXP_REPLACE(primaryTitle, '[^a-z0-9 ]', '', 'g')) AS title_key
+        FROM read_csv_auto('{filename}', delim='\t')
+        WHERE titleType IN ({title_types})
+          AND isAdult = '0'
+    """)
 
 
-def build_ratings_table(con: duckdb.DuckDBPyConnection, filename: Path) -> None:
+def build_ratings_table(con, filename: Path) -> None:
     """
-    Create the filtered ratings table corresponding to titles.
+    Build the title_ratings table from the IMDb TSV file.
 
-    .. args:
-        con: A DuckDB connection.
-        filename: The path to the title.ratings.tsv.gz file.
+    Args:
+        con: DuckDB connection
+        filename: Path to the IMDb TSV file
 
-    .. returns:
+    Raises:
+        RuntimeError: If the table creation fails
+
+    Returns:
         None
     """
-    logger.info("Building title_ratings table from %s...", filename)
-    con.execute(
-        """
+    logger.info("Building title_ratings...")
+
+    con.execute(f"""
         CREATE OR REPLACE TABLE title_ratings AS
-        SELECT  r.*
-        FROM    read_csv_auto(?, delim='\t') AS r
-                SEMI JOIN title_basics USING (tconst)
-        WHERE r.numVotes >= 50
-        """,
-        [str(filename)],
-    )
-    logger.info("Built title_ratings table.")
+        SELECT r.*
+        FROM read_csv_auto('{filename}', delim='\t') r
+        SEMI JOIN title_basics USING (tconst)
+        WHERE numVotes >= 50
+    """)
 
 
-def fetch_title_basics(with_cleanup: bool = False) -> None:
+def build_akas_table(con, filename: Path) -> None:
     """
-    Download, build, and export the title.basics table.
+    Build the title_akas table from the IMDb TSV file.
 
-    .. args:
-        with_cleanup: Whether to remove the downloaded file after processing.
+    Args:
+        con: DuckDB connection
+        filename: Path to the IMDb TSV file
 
-    .. returns:
+    Raises:
+        RuntimeError: If the table creation fails
+
+    Returns:
         None
     """
-    titles_url = f"{BASE_URL}/title.basics.tsv.gz"
-    titles_file: Path | None
+    logger.info("Building title_akas...")
 
-    titles_file = fetch_url(titles_url, output_dir=IMDB_DIR)
-
-    if titles_file is None:
-        raise RuntimeError("Failed to download title.basics.tsv.gz")
-
-    try:
-        with duckdb.connect(DB_FILE) as con:
-            build_titles_table(con, titles_file)
-            export_titles(con)
-
-    finally:
-        if with_cleanup:
-            cleanup(titles_file)
-
-    logger.info("Generated titles.basics.csv")
-    logger.info("-" * 40)
+    con.execute(f"""
+        CREATE OR REPLACE TABLE title_akas AS
+        SELECT a.*
+        FROM read_csv_auto('{filename}', delim='\t') a
+        SEMI JOIN title_basics ON a.titleId = tconst
+    """)
 
 
-def fetch_title_ratings(with_cleanup: bool = False) -> None:
+def build_crew_table(con, filename: Path) -> None:
     """
-    Download, build, and export the title.ratings table.
+    Build the title_crew table from the IMDb TSV file.
 
-    .. args:
-        with_cleanup: Whether to remove the downloaded file after processing.
+    Args:
+        con: DuckDB connection
+        filename: Path to the IMDb TSV file
 
-    .. returns:
+    Raises:
+        RuntimeError: If the table creation fails
+
+    Returns:
         None
     """
-    ratings_url = f"{BASE_URL}/title.ratings.tsv.gz"
-    ratings_file: Path | None
+    logger.info("Building title_crew...")
 
-    ratings_file = fetch_url(ratings_url, output_dir=IMDB_DIR)
+    con.execute(f"""
+        CREATE OR REPLACE TABLE title_crew AS
+        SELECT c.*
+        FROM read_csv_auto('{filename}', delim='\t') c
+        SEMI JOIN title_basics USING (tconst)
+    """)
 
-    if ratings_file is None:
-        raise RuntimeError("Failed to download title.ratings.tsv.gz")
 
-    try:
-        with duckdb.connect(DB_FILE) as con:
-            build_ratings_table(con, ratings_file)
-            export_ratings(con)
+def build_principals_table(con, filename: Path) -> None:
+    """
+    Build the title_principals table from the IMDb TSV file.
 
-    finally:
-        if with_cleanup:
-            cleanup(ratings_file)
+    Args:
+        con: DuckDB connection
+        filename: Path to the IMDb TSV file
 
-    logger.info("Generated title.ratings.csv")
-    logger.info("-" * 40)
+    Raises:
+        RuntimeError: If the table creation fails
+
+    Returns:
+        None
+    """
+    logger.info("Building title_principals...")
+
+    con.execute(f"""
+        CREATE OR REPLACE TABLE title_principals AS
+        SELECT p.*
+        FROM read_csv_auto('{filename}', delim='\t') p
+        SEMI JOIN title_basics USING (tconst)
+    """)
+
+
+def build_names_table(con, filename: Path) -> None:
+    """
+    Build the name_basics table from the IMDb TSV file.
+
+    Args:
+        con: DuckDB connection
+        filename: Path to the IMDb TSV file
+
+    Raises:
+        RuntimeError: If the table creation fails
+
+    Returns:
+        None
+    """
+    logger.info("Building name_basics...")
+
+    con.execute(f"""
+        CREATE OR REPLACE TABLE name_basics AS
+        SELECT *
+        FROM read_csv_auto('{filename}', delim='\t')
+    """)
+
+
+def build_composite_titles_table(con) -> None:
+    """
+    Build a composite table of IMDb titles with the following columns:
+
+        - tconst
+        - titleType
+        - primaryTitle
+        - originalTitle
+        - startYear
+        - endYear
+        - runtimeMinutes
+        - genres
+        - title_key
+        - averageRating
+        - numVotes
+        - all_akas
+        - cast
+        - directors
+        - writers
+
+    Args:
+        con: DuckDB connection
+
+    Raises:
+        RuntimeError: If the table creation fails
+
+    Returns:
+        None
+    """
+    logger.info("Building composite table...")
+
+    con.execute("""
+        CREATE OR REPLACE TABLE titles_composite AS
+
+        WITH
+
+        akas AS (
+            SELECT
+                titleId AS tconst,
+                STRING_AGG(DISTINCT LOWER(title), ' | ') AS all_akas
+            FROM title_akas
+            WHERE title IS NOT NULL
+            GROUP BY titleId
+        ),
+
+        principals AS (
+            SELECT
+                p.tconst,
+                STRING_AGG(DISTINCT n.primaryName, ' | ') AS cast
+            FROM title_principals p
+            LEFT JOIN name_basics n USING (nconst)
+            GROUP BY p.tconst
+        )
+
+        SELECT
+            b.tconst,
+            b.titleType,
+            b.primaryTitle,
+            b.originalTitle,
+            b.startYear,
+            b.endYear,
+            b.runtimeMinutes,
+            b.genres,
+            b.title_key,
+
+            r.averageRating,
+            r.numVotes,
+
+            a.all_akas,
+            p.cast,
+
+            c.directors,
+            c.writers
+
+        FROM title_basics b
+        LEFT JOIN title_ratings r USING (tconst)
+        LEFT JOIN akas a USING (tconst)
+        LEFT JOIN principals p USING (tconst)
+        LEFT JOIN title_crew c USING (tconst)
+    """)
+
+
+def fetch_and_build(con, url: str, builder, table_name: str, export_name: Optional[str] = None):
+    """
+    Fetch a URL, build a DuckDB table, and optionally export to CSV.
+
+    Args:
+        con: DuckDB connection
+        url: URL to fetch
+        builder: Function to build the DuckDB table
+        table_name: Name of the DuckDB table to create
+        export_name: Optional name of the CSV file to export
+
+    Raises:
+        RuntimeError: If the download fails
+
+    Returns:
+        Path to the downloaded file
+    """
+    file = fetch_url(url, output_dir=IMDB_DIR)
+
+    if file is None:
+        raise RuntimeError(f"Failed download: {url}")
+
+    builder(con, file)
+
+    if export_name:
+        export_table(con, table_name, export_name)
+
+    return file
 
 
 def main() -> None:
-    """Download, prune, export, and clean up IMDb datasets."""
-    fetch_title_basics()
-    fetch_title_ratings()
+    """Main function to run the IMDb pipeline."""
+    logger.info("Starting IMDb pipeline...")
+
+    with duckdb.connect(DUCKDB_DATA_FILE) as con:
+        fetch_and_build(con, f"{BASE_URL}/title.basics.tsv.gz", build_titles_table, "title_basics", "titles.basics.csv")
+        fetch_and_build(
+            con, f"{BASE_URL}/title.ratings.tsv.gz", build_ratings_table, "title_ratings", "title.ratings.csv"
+        )
+        fetch_and_build(con, f"{BASE_URL}/title.akas.tsv.gz", build_akas_table, "title_akas", "title.akas.csv")
+        fetch_and_build(con, f"{BASE_URL}/title.crew.tsv.gz", build_crew_table, "title_crew", "title.crew.csv")
+        fetch_and_build(
+            con,
+            f"{BASE_URL}/title.principals.tsv.gz",
+            build_principals_table,
+            "title_principals",
+            "title.principals.csv",
+        )
+        fetch_and_build(con, f"{BASE_URL}/name.basics.tsv.gz", build_names_table, "name_basics")
+
+        build_composite_titles_table(con)
+        export_composite(con)
+
+    logger.info("IMDb pipeline complete.")
 
 
 if __name__ == "__main__":

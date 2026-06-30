@@ -20,12 +20,14 @@ Netflix AI Greenlight Challenge: Can Data Science Predict the Next Hit Drama?
 ## Quickstart
 
 1. Register for Kaggle and get a [Kaggle API Key](./docs/KAGGLE.md)
-2. Install required system packages for your operating system: [Windows](./setup/windows/setup.ps1),
+2. Install [Anaconda](https://www.anaconda.com/download)
+3. Install required system packages for your operating system: [Windows](./setup/windows/setup.ps1),
    [macOS](./setup/macos/setup.sh), [Linux](./setup/linux/setup.sh)
 
-3. Initialize your environment. This includes creating and activating a Python virtual
-   environment, and then downloading data files for Netflix, IMDb and The Movie
-   Database (TMDB). The final dataset will be located at `./netflix/db/netflix_enriched_dataset.csv`.
+4. Initialize your environment by running the make commands below.
+   These will create and activate a Python virtual
+   environment, and then download data files for Netflix, IMDb and The Movie
+   Database (TMDB).
 
    **The setup process will take between 5 and 15 minutes depending on your compute
    device and your Internet connection.**
@@ -34,6 +36,12 @@ Netflix AI Greenlight Challenge: Can Data Science Predict the Next Hit Drama?
    make python-init
    make run
    ```
+
+Creates three csv files in the ./data directory:
+
+- imdb.titles.composite.csv
+- netflix.titles.composite.csv
+- TMDB_tv_dataset_v3.csv
 
 ## Data Sources
 

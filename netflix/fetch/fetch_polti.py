@@ -13,9 +13,9 @@ import logging
 import os
 from pathlib import Path
 
-from .const import DB_DIR
+from netflix.const import DATA_DIR
 
-POLTI_DIR = os.path.join(DB_DIR, "polti")
+POLTI_DIR = os.path.join(DATA_DIR, "polti")
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",

@@ -12,10 +12,12 @@ import os
 
 from kaggle.api.kaggle_api_extended import KaggleApi  # type: ignore[import-untyped]
 
-from .const import DB_DIR
+from netflix.const import DATA_DIR
 
-KAGGLE_DIR = os.path.join(DB_DIR, "kaggle", "tmdb-movie-metadata")
+KAGGLE_DIR = os.path.join(DATA_DIR)
 DATASET = "asaniczka/full-tmdb-tv-shows-dataset-2023-150k-shows"
+INPUT_FILE = "TMDB_tv_dataset_v3.csv"
+OUTPUT_FILE = "tmdb.titles.v3.csv"
 
 api = KaggleApi()
 logging.basicConfig(
@@ -38,7 +40,15 @@ def main():
     """
     api.authenticate()
     api.dataset_download_files(DATASET, path=KAGGLE_DIR, unzip=True)
-    logger.info("Dataset downloaded successfully.")
+
+    input_path = os.path.join(KAGGLE_DIR, INPUT_FILE)
+    output_path = os.path.join(KAGGLE_DIR, OUTPUT_FILE)
+    if os.path.exists(input_path):
+        logger.info("Dataset downloaded successfully.")
+        os.rename(input_path, output_path)
+        logger.info("Renamed %s → %s", INPUT_FILE, OUTPUT_FILE)
+    else:
+        logger.warning("Expected file not found: %s", INPUT_FILE)
     logger.info("-" * 40)
 
 

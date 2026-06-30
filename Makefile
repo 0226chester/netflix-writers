@@ -36,16 +36,10 @@ init:
 	@echo "==============================================================================="
 	@echo "Initialization complete!"
 	@echo "==============================================================================="
+	make python-init
 
 activate:
 	./scripts/activate.sh
-
-# complete Docker build. Performs all 13 steps of the build process regardless of current state.
-# takes around 4 minutes to complete
-build:
-	@echo "==============================================================================="
-	@echo "Building solution ..."
-	@echo "==============================================================================="
 
 # run the web application from Docker
 # takes around 30 seconds to complete
@@ -118,6 +112,7 @@ python-init:
 	$(ACTIVATE_VENV) && \
 	$(PIP) install pip==25.3 setuptools wheel pip-tools && \
 	PIP_CACHE_DIR=.pypi_cache $(PIP) install -r requirements/local.txt
+	$(ACTIVATE_VENV) && $(PYTHON) -m ipykernel install --user --name py311 --display-name "Python 3.13"
 
 python-lint:
 	@echo ""
@@ -156,9 +151,15 @@ python-fetch-data:
 
 python-build-dataset:
 	@echo "==============================================================================="
-	@echo "Building enriched Netflix dataset from fetched data ..."
+	@echo "Building composite Netflix dataset from fetched data ..."
 	@echo "==============================================================================="
-	$(ACTIVATE_VENV) && python -m netflix.fetch.dataset
+	$(ACTIVATE_VENV) && python -m netflix.build
+
+python-build-stories:
+	@echo "==============================================================================="
+	@echo "Building  ..."
+	@echo "==============================================================================="
+	$(ACTIVATE_VENV) && python -m netflix.build.story_codes
 
 
 ######################
@@ -185,5 +186,5 @@ help:
 	@echo 'python-clean           - Destroy the Python virtual environment and remove __pycache__ directories'
 	@echo 'python-requirements    - Compile and update Python dependency files'
 	@echo 'python-fetch-data      - Fetch data from external APIs and save to local files'
-	@echo 'python-build-dataset   - Build enriched Netflix dataset from fetched data'
+	@echo 'python-build-dataset   - Build composite Netflix dataset from fetched data'
 	@echo '===================================================================='
