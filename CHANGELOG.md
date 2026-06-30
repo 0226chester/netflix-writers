@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 
 
+## [0.2.0](https://github.com/FullStackWithLawrence/netflix-writers/compare/v0.1.1...v0.2.0) (2026-06-30)
+
+### Features
+
+* download all available IMDb datasets. create composite dataset ([4a35c1c](https://github.com/FullStackWithLawrence/netflix-writers/commit/4a35c1c08f6dc5cc9df4f3839fa9d7139e6ec25b))
+
+### Bug Fixes
+
+* bug fixes ([2b13a03](https://github.com/FullStackWithLawrence/netflix-writers/commit/2b13a034454fb36da5148aa1578f519f6f2079ef))
+
+### Refactoring
+
+* create build folder ([52dd60f](https://github.com/FullStackWithLawrence/netflix-writers/commit/52dd60fdb5dc197f27fe9740a20db3710e172c4d))
+
 ## [0.2.0-alpha.1](https://github.com/FullStackWithLawrence/netflix-writers/compare/v0.1.2-alpha.1...v0.2.0-alpha.1) (2026-06-22)
 
 ### Features
