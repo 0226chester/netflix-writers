@@ -14,8 +14,10 @@
 <br>
 [![hack.d Lawrence McDaniel](https://img.shields.io/badge/Author-Lawrence%20McDaniel-orange.svg)](https://lawrencemcdaniel.com)
 
-This repo contains source code for ...
-Netflix AI Greenlight Challenge: Can Data Science Predict the Next Hit Drama?
+This repo contains source code and supplements for
+[UBCx-VSP 1-Week AI Tools in Python and Stats](https://asda.stat.ubc.ca/datascience.html),
+including code samples for the online modules in Canvas and
+the Netflix AI Greenlight Challenge: Can Data Science Predict the Next Hit Drama?
 
 ## Quickstart
 
